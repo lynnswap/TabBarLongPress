@@ -16,7 +16,7 @@ Add the package to your `Package.swift`:
 ```
 
 Then add `TabBarLongPress` to the target that hosts your tab bar controller.
-The first public release ships as version `0.1.0`.
+The first public release ships as version `1.0.0`.
 
 ## Usage
 
