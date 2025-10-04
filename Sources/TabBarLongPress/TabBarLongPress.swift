@@ -21,6 +21,7 @@ public final class TabBarLongPressInteraction: NSObject {
             longPress?.minimumPressDuration = minimumPressDuration
         }
     }
+    public var totalTabs:Int
 
     private weak var controller: UITabBarController?
     private var longPress: UILongPressGestureRecognizer?
@@ -29,10 +30,12 @@ public final class TabBarLongPressInteraction: NSObject {
     public init(
         _ controller: UITabBarController,
         minimumPressDuration: TimeInterval = 0.5,
+        totalTabs: Int = 5,
         onLongPress: ((_ tbc: UITabBarController, _ item: UITabBarItem, _ index: Int) -> Void)? = nil
     ) {
         self.controller = controller
         self.minimumPressDuration = minimumPressDuration
+        self.totalTabs = totalTabs
         self.onLongPress = onLongPress
         super.init()
         install()
@@ -92,11 +95,8 @@ extension TabBarLongPressInteraction: UIGestureRecognizerDelegate {
             return (0..<visible).contains(idx) ? idx : nil
         }
     }
-    private func isMoreSlot(_ index: Int, tabBar: UITabBar, totalTabs: Int) -> Bool {
-        let visible = tabBar.items?.count ?? 0
-        guard visible > 0 else { return false }
-        let hasMore = totalTabs > visible
-        return hasMore && index == visible - 1
+    private func isMoreSlot(_ index: Int) -> Bool {
+        return index > totalTabs - 1
     }
 
     public func gestureRecognizer(
