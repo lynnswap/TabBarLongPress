@@ -4,8 +4,9 @@
 import UIKit
 
 @MainActor
+@objc
 public protocol TabBarLongPressInteractionDelegate: AnyObject {
-    func tabBarController(
+    @objc optional func tabBarController(
         _ tbc: UITabBarController,
         didLongPress item: UITabBarItem,
         at index: Int
@@ -62,7 +63,7 @@ extension TabBarLongPressInteraction: UIGestureRecognizerDelegate {
             return
         }
         let item = items[index]
-        delegate?.tabBarController(tbc, didLongPress: item, at: index)
+        delegate?.tabBarController?(tbc, didLongPress: item, at: index)
         onLongPress?(tbc, item, index)
     }
     
