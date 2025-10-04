@@ -12,7 +12,7 @@ TabBarLongPress adds a long-press gesture recognizer to `UITabBarController`, de
 Add the package to your `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/lynnswap/TabBarLongPress.git", from: "0.1.0")
+.package(url: "https://github.com/lynnswap/TabBarLongPress.git", from: "1.0.0")
 ```
 
 Then add `TabBarLongPress` to the target that hosts your tab bar controller.
