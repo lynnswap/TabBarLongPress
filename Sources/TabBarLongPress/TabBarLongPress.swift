@@ -27,6 +27,13 @@ public final class TabBarLongPressInteraction: NSObject {
         _ item: UITabBarItem?,
         _ index: Int
     ) -> Void
+
+    @available(iOS 18.0, *)
+    public typealias TabBarTabLongPressHandler = (
+        _ tabBarController: UITabBarController,
+        _ tab: UITab?,
+        _ index: Int
+    ) -> Void
     
     public weak var delegate: TabBarLongPressInteractionDelegate?
     public var minimumPressDuration: TimeInterval {
@@ -39,6 +46,13 @@ public final class TabBarLongPressInteraction: NSObject {
     private weak var controller: UITabBarController?
     private var longPress: UILongPressGestureRecognizer?
     private var onLongPress: TabBarLongPressHandler?
+    private var onLongPressTabBox: Any?
+
+    @available(iOS 18.0, *)
+    private var onLongPressTab: TabBarTabLongPressHandler? {
+        get { onLongPressTabBox as? TabBarTabLongPressHandler }
+        set { onLongPressTabBox = newValue }
+    }
 
     public init(
         _ controller: UITabBarController,
@@ -52,6 +66,28 @@ public final class TabBarLongPressInteraction: NSObject {
         self.onLongPress = onLongPress
         super.init()
         install()
+    }
+
+    @available(iOS 18.0, *)
+    public convenience init(
+        _ controller: UITabBarController,
+        minimumPressDuration: TimeInterval = 0.5,
+        totalTabs: Int = 5,
+        onLongPress: TabBarLongPressHandler? = nil,
+        onLongPressTab: TabBarTabLongPressHandler? = nil
+    ) {
+        self.init(
+            controller,
+            minimumPressDuration: minimumPressDuration,
+            totalTabs: totalTabs,
+            onLongPress: onLongPress
+        )
+        self.onLongPressTab = onLongPressTab
+    }
+
+    @available(iOS 18.0, *)
+    public func setOnLongPressTab(_ handler: TabBarTabLongPressHandler?) {
+        onLongPressTab = handler
     }
 }
 
@@ -78,15 +114,22 @@ extension TabBarLongPressInteraction: UIGestureRecognizerDelegate {
         guard let index = indexByGeometry(point: gr.location(in: tbc.tabBar), in: tbc.tabBar) else {
             return
         }
-        let isMoreSlot = isMoreSlot(index)
+        let visible = tbc.tabBar.items?.count ?? 0
+        let isMoreByIdentity: Bool = {
+            guard index == visible - 1 else { return false }
+            return items[index] === tbc.moreNavigationController.tabBarItem
+        }()
         
         if let delegate{
-            delegate.tabBarController?(tbc, didLongPressItem: isMoreSlot ? nil : items[index], at: index)
+            delegate.tabBarController?(tbc, didLongPressItem: isMoreByIdentity ? nil : items[index], at: index)
             if #available(iOS 18.0, *){
-                delegate.tabBarController?(tbc, didLongPressTab: isMoreSlot ? nil : tbc.tabs[index], at: index)
+                delegate.tabBarController?(tbc, didLongPressTab: isMoreByIdentity ? nil : tbc.tabs[index], at: index)
             }
         }
-        onLongPress?(tbc, isMoreSlot ? nil : items[index], index)
+        onLongPress?(tbc, isMoreByIdentity ? nil : items[index], index)
+        if #available(iOS 18.0, *), let onLongPressTab {
+            onLongPressTab(tbc, isMoreByIdentity ? nil : tbc.tabs[index], index)
+        }
     }
     
     private func indexByGeometry(point pt: CGPoint, in tabBar: UITabBar) -> Int? {
@@ -114,10 +157,6 @@ extension TabBarLongPressInteraction: UIGestureRecognizerDelegate {
             return (0..<visible).contains(idx) ? idx : nil
         }
     }
-    private func isMoreSlot(_ index: Int) -> Bool {
-        return index > totalTabs - 1
-    }
-
     public func gestureRecognizer(
         _ gestureRecognizer: UIGestureRecognizer,
         shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
