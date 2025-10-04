@@ -7,8 +7,15 @@ import UIKit
 @objc
 public protocol TabBarLongPressInteractionDelegate: AnyObject {
     @objc optional func tabBarController(
-        _ tbc: UITabBarController,
-        didLongPress item: UITabBarItem,
+        _ tabBarController: UITabBarController,
+        didLongPressItem item: UITabBarItem?,
+        at index: Int
+    )
+    
+    @available(iOS 18.0, *)
+    @objc optional func tabBarController(
+        _ tabBarController: UITabBarController,
+        didLongPressTab tab: UITab?,
         at index: Int
     )
 }
@@ -65,9 +72,15 @@ extension TabBarLongPressInteraction: UIGestureRecognizerDelegate {
         guard let index = indexByGeometry(point: gr.location(in: tbc.tabBar), in: tbc.tabBar) else {
             return
         }
-        let item = items[index]
-        delegate?.tabBarController?(tbc, didLongPress: item, at: index)
-        onLongPress?(tbc, item, index)
+        let isMoreSlot = isMoreSlot(index)
+        
+        if let delegate{
+            delegate.tabBarController?(tbc, didLongPressItem: isMoreSlot ? nil : items[index], at: index)
+            if #available(iOS 18.0, *){
+                delegate.tabBarController?(tbc, didLongPressTab: isMoreSlot ? nil : tbc.tabs[index], at: index)
+            }
+        }
+        onLongPress?(tbc, isMoreSlot ? nil : items[index], index)
     }
     
     private func indexByGeometry(point pt: CGPoint, in tabBar: UITabBar) -> Int? {
