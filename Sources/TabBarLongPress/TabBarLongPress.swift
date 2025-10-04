@@ -114,18 +114,22 @@ extension TabBarLongPressInteraction: UIGestureRecognizerDelegate {
         guard let index = indexByGeometry(point: gr.location(in: tbc.tabBar), in: tbc.tabBar) else {
             return
         }
-        let visible = tbc.tabBar.items?.count ?? 0
+        let visible = items.count
+        let candidateItem: UITabBarItem? = items.indices.contains(index) ? items[index] : nil
         let isMoreByIdentity: Bool = {
-            guard index == visible - 1 else { return false }
-            return items[index] === tbc.moreNavigationController.tabBarItem
+            guard index == visible - 1,
+                  let candidateItem = candidateItem else { return false }
+            return candidateItem === tbc.moreNavigationController.tabBarItem
         }()
         
-        let item:UITabBarItem? = isMoreByIdentity ? nil : items[index]
+        let item: UITabBarItem? = isMoreByIdentity ? nil : candidateItem
         delegate?.tabBarController?(tbc, didLongPress: item, at: index)
         onLongPress?(tbc, item, index)
         
         if #available(iOS 18.0, *){
-            let tab:UITab? = isMoreByIdentity ? nil : tbc.tabs[index]
+            let tabs = tbc.tabs
+            let candidateTab: UITab? = tabs.indices.contains(index) ? tabs[index] : nil
+            let tab: UITab? = isMoreByIdentity ? nil : candidateTab
             delegate?.tabBarController?(tbc, didLongPressTab: tab, at: index)
             onLongPressTab?(tbc, tab, index)
         }
