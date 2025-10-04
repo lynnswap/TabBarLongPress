@@ -22,6 +22,12 @@ public protocol TabBarLongPressInteractionDelegate: AnyObject {
 
 @MainActor
 public final class TabBarLongPressInteraction: NSObject {
+    public typealias TabBarLongPressHandler = (
+        _ tabBarController: UITabBarController,
+        _ item: UITabBarItem?,
+        _ index: Int
+    ) -> Void
+    
     public weak var delegate: TabBarLongPressInteractionDelegate?
     public var minimumPressDuration: TimeInterval {
         didSet {
@@ -32,13 +38,13 @@ public final class TabBarLongPressInteraction: NSObject {
 
     private weak var controller: UITabBarController?
     private var longPress: UILongPressGestureRecognizer?
-    private var onLongPress: ((_ tbc: UITabBarController, _ item: UITabBarItem, _ index: Int) -> Void)?
+    private var onLongPress: TabBarLongPressHandler?
 
     public init(
         _ controller: UITabBarController,
         minimumPressDuration: TimeInterval = 0.5,
         totalTabs: Int = 5,
-        onLongPress: ((_ tbc: UITabBarController, _ item: UITabBarItem, _ index: Int) -> Void)? = nil
+        onLongPress: TabBarLongPressHandler? = nil
     ) {
         self.controller = controller
         self.minimumPressDuration = minimumPressDuration
