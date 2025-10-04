@@ -8,7 +8,7 @@ import UIKit
 public protocol TabBarLongPressInteractionDelegate: AnyObject {
     @objc optional func tabBarController(
         _ tabBarController: UITabBarController,
-        didLongPressItem item: UITabBarItem?,
+        didLongPress item: UITabBarItem?,
         at index: Int
     )
     
@@ -121,7 +121,7 @@ extension TabBarLongPressInteraction: UIGestureRecognizerDelegate {
         }()
         
         if let delegate{
-            delegate.tabBarController?(tbc, didLongPressItem: isMoreByIdentity ? nil : items[index], at: index)
+            delegate.tabBarController?(tbc, didLongPress: isMoreByIdentity ? nil : items[index], at: index)
             if #available(iOS 18.0, *){
                 delegate.tabBarController?(tbc, didLongPressTab: isMoreByIdentity ? nil : tbc.tabs[index], at: index)
             }
