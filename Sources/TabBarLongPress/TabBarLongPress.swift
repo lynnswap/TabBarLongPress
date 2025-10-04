@@ -41,6 +41,21 @@ public final class TabBarLongPressInteraction: NSObject {
             longPress?.minimumPressDuration = minimumPressDuration
         }
     }
+    public var allowableMovement: CGFloat {
+        didSet {
+            longPress?.allowableMovement = allowableMovement
+        }
+    }
+    public var cancelsTouchesInView: Bool {
+        didSet {
+            longPress?.cancelsTouchesInView = cancelsTouchesInView
+        }
+    }
+    public var requiresExclusiveTouchType: Bool {
+        didSet {
+            longPress?.requiresExclusiveTouchType = requiresExclusiveTouchType
+        }
+    }
     public var totalTabs:Int
 
     private weak var controller: UITabBarController?
@@ -58,11 +73,17 @@ public final class TabBarLongPressInteraction: NSObject {
         _ controller: UITabBarController,
         minimumPressDuration: TimeInterval = 0.5,
         totalTabs: Int = 5,
+        allowableMovement: CGFloat = 8,
+        cancelsTouchesInView: Bool = false,
+        requiresExclusiveTouchType: Bool = false,
         onLongPress: TabBarLongPressHandler? = nil
     ) {
         self.controller = controller
         self.minimumPressDuration = minimumPressDuration
         self.totalTabs = totalTabs
+        self.allowableMovement = allowableMovement
+        self.cancelsTouchesInView = cancelsTouchesInView
+        self.requiresExclusiveTouchType = requiresExclusiveTouchType
         self.onLongPress = onLongPress
         super.init()
         install()
@@ -73,6 +94,9 @@ public final class TabBarLongPressInteraction: NSObject {
         _ controller: UITabBarController,
         minimumPressDuration: TimeInterval = 0.5,
         totalTabs: Int = 5,
+        allowableMovement: CGFloat = 8,
+        cancelsTouchesInView: Bool = false,
+        requiresExclusiveTouchType: Bool = false,
         onLongPress: TabBarLongPressHandler? = nil,
         onLongPressTab: TabBarTabLongPressHandler? = nil
     ) {
@@ -80,6 +104,9 @@ public final class TabBarLongPressInteraction: NSObject {
             controller,
             minimumPressDuration: minimumPressDuration,
             totalTabs: totalTabs,
+            allowableMovement: allowableMovement,
+            cancelsTouchesInView: cancelsTouchesInView,
+            requiresExclusiveTouchType: requiresExclusiveTouchType,
             onLongPress: onLongPress
         )
         self.onLongPressTab = onLongPressTab
@@ -97,9 +124,9 @@ extension TabBarLongPressInteraction: UIGestureRecognizerDelegate {
         guard let tabBar = controller?.tabBar else { return }
         let gr = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
         gr.minimumPressDuration = minimumPressDuration
-        gr.allowableMovement = 8
-        gr.cancelsTouchesInView = false
-        gr.requiresExclusiveTouchType = false
+        gr.allowableMovement = allowableMovement
+        gr.cancelsTouchesInView = cancelsTouchesInView
+        gr.requiresExclusiveTouchType = requiresExclusiveTouchType
         gr.delegate = self
         tabBar.addGestureRecognizer(gr)
         self.longPress = gr
